@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+            #zone_chat strong {
+                color: white;
+                background-color: black;
+                padding: 2px;
+            }
+            #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+        </style>
+</head>
+<body>
+    
+        <form action="/" method="post" id="formulaire_chat">
+            <input type="text" name="message" id="m" placeholder="Votre message..." size="50" autofocus />
+            <input type="submit" id="envoi_message" value="Envoyer" />
+        </form>
+
+        <section id="zone_chat">
+            <ul id="messages"></ul>
+        </section>
+
+        <div id="status"></div>
+
+    <!--Including Socket IO-->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!--Including Jquery-->
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+        //? Declare a varible pseudo for store user pseudo on connection
+        var pseudo;
+        $(document).ready(function(){
+            
+        })
+    $(function () {
+        var socket = io();
+        
+        pseudo = prompt('Choisissez un pseudo svp:')
+        
+        //Emit welcome event to server wich send a broadcast message to all connected users
+        socket.emit('welcome',pseudo)
+
+        //Show Welcome message
+        socket.on('welcome',(pseudo)=>{
+            alert(pseudo+' Vient de se connecter');
+        })
+
+        //Emit event when user is typing something
+        $('#m').keydown(()=>{
+            socket.emit('typing', pseudo +' est en train d\'écrire')
+        })
+
+        //Empty status bar when user stop typing
+        $('#m').keyup(()=>{
+            $('#status').empty()
+        })
+
+        $('form').submit(function(){
+            //Emit event to broadcast message to all connected users
+        socket.emit('message', pseudo,$('#m').val());
+
+            //Append message when user submit form
+        $('#messages').append($('<li>').html('<span style="background:#000;color:#fff"> '+pseudo+' : </span>'+$('#m').val()))
+        $('#m').val('');
+        return false;
+        });
+
+        //Append message when event "message" is send
+        socket.on('message',(p,msg)=>{
+            $('#status').empty();
+            $('#messages').append($('<li>').html('<span style="background:#000;color:#fff"> '+p+' : </span>'+msg))
+        })
+
+        socket.on('disconneted',()=>{
+            io.emit('bye',pseudo)
+        })
+
+        socket.on('bye',(p)=>{
+            alert(p+' Vient de se déconnecter')
+        })
+
+        //Add “{user} is typing” functionality
+        socket.on('typing',(write)=>{
+            $('#status').html(write)
+        })
+    });
+    </script>
+</body>
+</html>
