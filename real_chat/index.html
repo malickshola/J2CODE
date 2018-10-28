@@ -42,8 +42,9 @@
         })
     $(function () {
         var socket = io();
-        
-        pseudo = prompt('Choisissez un pseudo svp:')
+        while(!pseudo){
+            pseudo = prompt('Choisissez un pseudo svp:')
+        }
         
         //Emit welcome event to server wich send a broadcast message to all connected users
         socket.emit('welcome',pseudo)

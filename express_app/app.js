@@ -1,34 +1,12 @@
 var express = require('express')
-var app = express()
-var Twig = require('twig')
-var twig = Twig.twig
+var app= express()
 
-/*
-    ?Define view engine
-    ! Will not work if undefined
-*/
-app.set('view engine', 'twig');
-
-/*
-? config twig
-*/
-app.set("twig options", {
-    allow_async: true,
-    strict_variables: false
-});
-
-//routes
-app.get('/',function(req,res){
-    res.render('Hello')
+app.get('/',(req,res)=>{
+    res.send('Hello')
 })
 
-
-//Default middleware
-app.use(function(req,res){
-    res.send('Undefined')
+app.get('/about',(req,res)=>{
+    res.send('About')
 })
 
-const port = "8080"
-app.listen(port,()=>{
-    console.log("Server start at "+port)
-});
+app.listen('8081')
